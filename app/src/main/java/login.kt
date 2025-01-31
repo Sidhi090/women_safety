@@ -1,4 +1,3 @@
-// LoginActivity.kt
 package com.example.safeheaven
 
 import LoginRequest
@@ -31,26 +30,31 @@ class Login : AppCompatActivity() {
         loginButton = findViewById(R.id.loginButton)
         signupLink = findViewById(R.id.signupLink)
 
-        // Handle Login button click
+        // Handle login button click
         loginButton.setOnClickListener {
-            val username = usernameEditText.text.toString()
+            val email = usernameEditText.text.toString()
             val password = passwordEditText.text.toString()
 
-            if (username.isNotEmpty() && password.isNotEmpty()) {
-                val loginRequest = LoginRequest(username, password)
+            // Validate input fields
+            if (email.isNotEmpty() && password.isNotEmpty()) {
 
-                // API call to login
+                // Creating LoginRequest object
+                val loginRequest = LoginRequest(email, password)
+
                 ApiClient.apiService.login(loginRequest).enqueue(object : Callback<LoginResponse> {
-                    override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                    override fun onResponse(
+                        call: Call<LoginResponse>,
+                        response: Response<LoginResponse>
+                    ) {
                         if (response.isSuccessful) {
-                            val loginResponse = response.body()
                             Toast.makeText(this@Login, "Login Successful", Toast.LENGTH_SHORT).show()
 
-                            val intent = Intent(this@Login, MainActivity::class.java)
+                            // Navigate to Dashboard
+                            val intent = Intent(this@Login, Dashboard::class.java)
                             startActivity(intent)
-                            finish()
+                            finish() // Finish login activity
                         } else {
-                            Toast.makeText(this@Login, "Error: ${response.message()}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@Login, "Invalid credentials. Please try again.", Toast.LENGTH_SHORT).show()
                         }
                     }
 
@@ -59,13 +63,13 @@ class Login : AppCompatActivity() {
                     }
                 })
             } else {
-                Toast.makeText(this, "Please enter username and password", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@Login, "Please enter valid email and password", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Handle Signup link click
+        // Navigate to Signup Page
         signupLink.setOnClickListener {
-            val intent = Intent(this, Signup::class.java)
+            val intent = Intent(this@Login, Signup::class.java)
             startActivity(intent)
         }
     }

@@ -9,9 +9,9 @@ import retrofit2.http.POST
 
 interface ApiService {
 
-    @POST("api/auth/signup")  // Correct endpoint
+    @POST("api/auth/signup")  // Ensure this matches your backend route
     fun signup(@Body signupRequest: SignupRequest): Call<String>
 
-    @POST("api/auth/login")   // Correct endpoint
+    @POST("api/auth/login")   // Ensure this matches your backend route
     fun login(@Body loginRequest: LoginRequest): Call<LoginResponse>
 }

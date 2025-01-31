@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import retrofit2.Call
@@ -19,6 +20,7 @@ class Signup : AppCompatActivity() {
     private lateinit var passwordEditText: EditText
     private lateinit var confirmPasswordEditText: EditText
     private lateinit var signupButton: Button
+    private lateinit var loginTextView: TextView // Added for login navigation
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,69 +33,72 @@ class Signup : AppCompatActivity() {
         passwordEditText = findViewById(R.id.password)
         confirmPasswordEditText = findViewById(R.id.confirmPassword)
         signupButton = findViewById(R.id.signupButton)
+        loginTextView = findViewById(R.id.loginTextView) // TextView for login
 
-        // Button click logic
+        // Navigate to Login when "Already have an account? Login" is clicked
+        loginTextView.setOnClickListener {
+            val intent = Intent(this@Signup, Login::class.java)
+            startActivity(intent)
+            finish() // Close Signup activity
+        }
+
         signupButton.setOnClickListener {
-            val name = nameEditText.text.toString()
-            val phone = phoneNumberEditText.text.toString()
-            val email = emailEditText.text.toString()
-            val password = passwordEditText.text.toString()
-            val confirmPassword = confirmPasswordEditText.text.toString()
+            val name = nameEditText.text.toString().trim()
+            val phone = phoneNumberEditText.text.toString().trim()
+            val email = emailEditText.text.toString().trim()
+            val password = passwordEditText.text.toString().trim()
+            val confirmPassword = confirmPasswordEditText.text.toString().trim()
 
-            // Validating input fields
-            if (name.isNotEmpty() && phone.isNotEmpty() && email.isNotEmpty() && password == confirmPassword) {
-
-                // Check if phone number is valid
-                if (phone.length != 10) {
-                    Toast.makeText(this, "Please enter a valid 10-digit phone number", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                // Check if email is valid
-                if (!email.contains("@")) {
-                    Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                // Check if passwords match
-                if (password != confirmPassword) {
-                    Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                // Check if password length is sufficient
-                if (password.length < 6) {
-                    Toast.makeText(this, "Password must be at least 6 characters long", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                // Creating SignupRequest object
-                val signupRequest = SignupRequest(name, email, password, phone)
-
-                // Making the API call
-                ApiClient.apiService.signup(signupRequest).enqueue(object : Callback<String> {
-                    override fun onResponse(call: Call<String>, response: Response<String>) {
-                        if (response.isSuccessful) {
-                            // Handle success
-                            Toast.makeText(this@Signup, "Signup Successful", Toast.LENGTH_SHORT).show()
-                            val intent = Intent(this@Signup, MainActivity::class.java)
-                            startActivity(intent)
-                            finish()
-                        } else {
-                            // Handle error
-                            Toast.makeText(this@Signup, "Error: ${response.message()}", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-
-                    override fun onFailure(call: Call<String>, t: Throwable) {
-                        // Handle failure
-                        Toast.makeText(this@Signup, "Request failed: ${t.message}", Toast.LENGTH_SHORT).show()
-                    }
-                })
-            } else {
-                // Handle case where fields are missing or passwords don't match
-                Toast.makeText(this, "Please check your fields", Toast.LENGTH_SHORT).show()
+            // Validate input fields
+            if (name.isEmpty() || phone.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            if (phone.length != 10) {
+                Toast.makeText(this, "Please enter a valid 10-digit phone number", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (password.length < 6) {
+                Toast.makeText(this, "Password must be at least 6 characters long", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (password != confirmPassword) {
+                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Creating SignupRequest object
+            val signupRequest = SignupRequest(name, email, password, phone)
+
+            // Call API
+            ApiClient.apiService.signup(signupRequest).enqueue(object : Callback<String> {
+                override fun onResponse(call: Call<String>, response: Response<String>) {
+                    if (response.isSuccessful) {
+                        Toast.makeText(this@Signup, "Signup Successful! Redirecting to Login...", Toast.LENGTH_LONG).show()
+
+                        // Delay to allow user to see the toast message
+                        android.os.Handler().postDelayed({
+                            val intent = Intent(this@Signup, Login::class.java)
+                            startActivity(intent)
+                            finish() // Finish the signup activity to prevent going back
+                        }, 1500) // Delay for 1.5 seconds
+                    } else {
+                        Toast.makeText(this@Signup, "Signup Failed: ${response.message()}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<String>, t: Throwable) {
+                    Toast.makeText(this@Signup, "Network Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
         }
     }
 }
