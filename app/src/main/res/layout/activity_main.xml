@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="30dp">
+
+    <ImageView
+        android:id="@+id/logoImage"
+        android:layout_width="250dp"
+        android:layout_height="350dp"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:src="@drawable/logo"
+        android:contentDescription="App Logo" />
+
+    <!-- Bigger Tagline Positioned Higher -->
+    <TextView
+        android:id="@+id/taglineText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="A Safer Tomorrow, Starts Today"
+        android:textSize="32sp"
+    android:textColor="@android:color/holo_green_dark"
+    android:layout_marginTop="10dp"
+    android:textStyle="bold"/>
+</LinearLayout>
